@@ -156,6 +156,7 @@ submissions_response = client.call(GraphQLRequest(query=submissions_query))
 # COMMAND ----------
 
 subs_pdf = pd.DataFrame.from_dict(submissions_response['submissions']['submissions'])
+subs_pdf = subs_pdf[subs_pdf.workflowId.eq(701)]
 
 # COMMAND ----------
 
@@ -188,7 +189,9 @@ display(submissions_df)
 
 # COMMAND ----------
 
-complete_submissions = submissions_df.filter(submissions_df.workflowId == 701) #.filter(submissions_df.deleted == False).filter(submissions_df.status =="COMPLETE")
+#get rid of errors --> though we need to fix this
+complete_submissions = submissions_df.filter(
+  (submissions_df.errors.isNull() ) & (submissions_df.deleted == False))  #.filter(submissions_df.deleted == False).filter(submissions_df.status =="COMPLETE")
 
 # COMMAND ----------
 
@@ -219,68 +222,21 @@ display(complete_with_results)
 
 # COMMAND ----------
 
-display(complete_with_results.select(get_json_object(col("Results"), "$.file_version").alias("file_version"), get_json_object(col("Results"), "$.results.document.results").alias("results")))
+# MAGIC %md
+# MAGIC ### Get Results Column Schema
 
 # COMMAND ----------
 
-struct_df_type = complete_with_results.withColumn("ParsedResults", get_json_object(col("Results"), "$.results.document.results").alias("results"))
+results_schema = spark.read.json(complete_with_results.rdd.map(lambda row: row.Results)).schema
 
 # COMMAND ----------
 
-json_schema = spark.read.json(struct_df_type.rdd.map(lambda row: row.ParsedResults)).schema
-struct_df_type = struct_df_type.withColumn('new_col', from_json(col('ParsedResults'), json_schema))
+# MAGIC %md
+# MAGIC ### Add Column with Struct Data type
 
 # COMMAND ----------
 
-struct_df_type = struct_df_type.withColumn("snap_date", current_date())
-
-# COMMAND ----------
-
-display(struct_df_type)
-
-# COMMAND ----------
-
-struct_df_type.select("id","datasetId","workflowId","status","inputFile","resultFile","new_col","snap_date").write.mode('append').parquet("dbfs:/mnt/indico/SECresults")
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC CREATE DATABASE IF NOT EXISTS indico;
-# MAGIC USE indico
-
-# COMMAND ----------
-
-struct_df_type.select("id","datasetId","workflowId","status","inputFile","resultFile","new_col","snap_date").printSchema()
-
-# COMMAND ----------
-
-#create delta table
-struct_df_type.select("id","datasetId","workflowId","status","inputFile","resultFile","new_col","snap_date").write.format('delta').saveAsTable('sec_litigations_test')
-
-# COMMAND ----------
-
-# MAGIC %fs ls dbfs:/mnt/indico/SECresults/
-
-# COMMAND ----------
-
-display(struct_df_type)
-
-# COMMAND ----------
-
-# structureSchema = StructType([
-#        StructField('file_version',IntegerType(),True),
-#        StructField('submission_id', IntegerType(), True),
-#        StructField('etl_output', StringType(), True),
-#         StructField('results', StructType([
-#              StructType('document', StructType()),
-#              StructField('middlename', StringType(), True),
-#              StructField('lastname', StringType(), True)
-#              ]))
-#          ])
-
-# COMMAND ----------
-
-complete_with_results = complete_with_results.withColumn("JSONResults", get_json_object(complete_with_results.Results))
+complete_with_results = complete_with_results.withColumn("Struct_results", from_json(col('Results'), results_schema))
 
 # COMMAND ----------
 
@@ -288,8 +244,13 @@ display(complete_with_results)
 
 # COMMAND ----------
 
-print(signle_submission_result)
+# MAGIC %md
+# MAGIC ## Create Delta Table From Results
 
 # COMMAND ----------
 
-display(datasets)
+complete_submissions.write.mode('append').saveAsTable("indico_submission_results")
+
+# COMMAND ----------
+
+
