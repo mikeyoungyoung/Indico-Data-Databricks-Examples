@@ -11,6 +11,15 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ![Drive Image](https://res.cloudinary.com/dte9clg4u/image/upload/v1663083624/process_overview_bmr5h5.png)
+# MAGIC 
+# MAGIC ## What is Indico?
+# MAGIC 
+# MAGIC Indico is the unstructured data AI platform that allow you to build best in class ML models with transfer learning and add structure to your vast swaths of unstructured data
+
+# COMMAND ----------
+
 from indico import IndicoClient, IndicoConfig
 from indico.filters import SubmissionFilter, or_
 from indico.queries import (
@@ -212,7 +221,7 @@ display(complete_submissions)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Get results via rest call with UDF
+# MAGIC # Get results via rest call with UDF
 
 # COMMAND ----------
 
@@ -235,7 +244,7 @@ display(complete_with_results)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Get Results Column Schema
+# MAGIC ## Get Results Column Schema
 
 # COMMAND ----------
 
@@ -257,7 +266,7 @@ display(complete_with_results)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Create Delta Table From Results
+# MAGIC # Create Delta Table From Results
 
 # COMMAND ----------
 
