@@ -1,4 +1,16 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Overview of Indico Data and Databricks Integration
+# MAGIC 
+# MAGIC Items still left to be done
+# MAGIC - [ ] Validate the delta table operations work correctly
+# MAGIC - [ ] Add steps to mark submissions as retrieved when getting results
+# MAGIC - [ ] Build example of creating dataset from mounted buckets, instead of just submissions
+# MAGIC - [ ] Build example of retraining/staggered loop
+# MAGIC - [ ] Build example of how to extract predictions from Indico models, and merge with structured ML model and ML Flow
+
+# COMMAND ----------
+
 from indico import IndicoClient, IndicoConfig
 from indico.filters import SubmissionFilter, or_
 from indico.queries import (
