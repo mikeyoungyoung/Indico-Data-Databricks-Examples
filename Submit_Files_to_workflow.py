@@ -101,3 +101,7 @@ submission_ids = client.call(WorkflowSubmission(workflow_id=workflow_id, files=u
 # COMMAND ----------
 
 submission_ids
+
+# COMMAND ----------
+
+

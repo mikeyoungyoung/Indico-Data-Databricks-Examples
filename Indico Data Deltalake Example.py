@@ -274,4 +274,12 @@ complete_submissions.write.mode('append').saveAsTable("indico_submission_results
 
 # COMMAND ----------
 
+display(spark.sql('DESCRIBE DETAIL indico_submission_results'))
+
+# COMMAND ----------
+
+display(spark.sql('DESCRIBE HISTORY indico_submission_results'))
+
+# COMMAND ----------
+
 
